@@ -8,15 +8,17 @@ in this repo are exactly what gets served.
 
 | File | Page |
 | --- | --- |
-| `index.html` | Home — hero, today's sessions, on screen this week, what we do, cinemas, membership |
-| `whats-on.html` | Full session board with cinema filter, now showing, coming soon, email signup |
-| `cinemas.html` | Each cinema, access information, good-to-know FAQ |
-| `about.html` | The company, programming approach, filmmakers, membership detail |
-| `contact.html` | Contact form, direct emails, venue hire, press |
-| `404.html` | Not found page (served automatically by Cloudflare Pages) |
+| `public/index.html` | Home — hero, today's sessions, on screen this week, what we do, cinemas, membership |
+| `public/whats-on.html` | Full session board with cinema filter, now showing, coming soon, email signup |
+| `public/cinemas.html` | Each cinema, access information, good-to-know FAQ |
+| `public/about.html` | The company, programming approach, filmmakers, membership detail |
+| `public/contact.html` | Contact form, direct emails, venue hire, press |
+| `public/404.html` | Not found page (served automatically on any unknown path) |
 
-Supporting files: `assets/css/styles.css`, `assets/js/main.js`, `assets/img/`,
-`favicon.svg`, `robots.txt`, `sitemap.xml`, `site.webmanifest`, `_headers`, `_redirects`.
+Everything served lives in `public/`: the pages above plus `assets/css/styles.css`,
+`assets/js/main.js`, `assets/img/`, `favicon.svg`, `robots.txt`, `sitemap.xml`,
+`site.webmanifest`, `_headers` and `_redirects`. `wrangler.jsonc` sits at the repo root
+and is not served.
 
 ## Put it on GitHub
 
@@ -30,21 +32,28 @@ git remote add origin https://github.com/YOUR-USERNAME/marvellous-entertainment.
 git push -u origin main
 ```
 
-## Connect Cloudflare Pages
+## Deploy to Cloudflare
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-2. Authorise GitHub and pick this repository.
-3. Build settings:
-   - Framework preset: **None**
-   - Build command: *leave empty*
-   - Build output directory: `/` (the repo root)
-4. **Save and Deploy.** Every push to `main` redeploys; pull requests get preview URLs.
-5. Custom domain: Pages project → **Custom domains** → add `marvellousentertainment.com.au`
-   and `www.marvellousentertainment.com.au`. Cloudflare adds the DNS records and the
-   certificate for you.
+The repo is laid out for **Workers Builds** (a static-asset Worker). `wrangler.jsonc`
+points Wrangler at `public/`, which is where every served file lives.
 
-`_headers` sets caching and basic security headers. `_redirects` maps tidy URLs
-(`/whats-on` → `/whats-on.html`). Both are read by Cloudflare Pages automatically.
+Build settings in the Worker → **Settings → Build**:
+
+- Build command: *empty*
+- Deploy command: `npx wrangler deploy`
+- Root directory: `/`
+
+Push to `main` and it deploys. `html_handling` gives clean URLs (`/about` serves
+`about.html`), and `not_found_handling` serves `public/404.html` with a real 404 status.
+
+Custom domain: Worker → **Domains & Routes** → **Add** → **Custom domain**, then
+`marvellousentertainment.com.au` and `www.marvellousentertainment.com.au`.
+
+### If you'd rather use Cloudflare Pages
+
+Create a **Pages** project instead (**Workers & Pages → Create → Pages → Connect to Git**),
+framework preset **None**, no build command, build output directory `public`.
+`wrangler.jsonc` is ignored by Pages and can stay.
 
 ## Before you go live — replace the placeholder content
 
@@ -98,8 +107,9 @@ header and footer so it never flashes. Logo lockups and the brand sheet are in
 ## Local preview
 
 ```bash
-python3 -m http.server 8000
+cd public && python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000`. Use a server rather than opening the files directly,
+Then open `http://localhost:8000`. (Or `npx wrangler dev` from the repo root to preview
+exactly as Cloudflare will serve it.) Use a server rather than opening the files directly,
 so the root-relative paths (`/assets/...`) resolve.
