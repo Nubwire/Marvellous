@@ -185,7 +185,7 @@ p:last-child { margin-bottom: 0; }
 }
 
 .brand { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
-.brand svg { width: 26px; height: 26px; flex: none; }
+.brand svg { width: 52px; height: 52px; flex: none; }
 .brand-name {
   font-family: var(--font-display);
   font-weight: 800;
